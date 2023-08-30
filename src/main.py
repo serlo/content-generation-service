@@ -1,7 +1,10 @@
+from dotenv import load_dotenv, find_dotenv
 from enum import Enum
 from fastapi import FastAPI
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+import openai
+import os
 
 app = FastAPI()
 
@@ -34,6 +37,9 @@ class ExerciseType(Enum):
     SINGLE_WORD_SOLUTION: str = "Lösung mit 1 Wort"
     SINGLE_NUMBER_SOLUTION: str = "Lösung mit 1 Zahl"
 
+
+# read local .env file
+load_dotenv(find_dotenv())
 # chat = ChatOpenAI(temperature=0.0)
 
 
