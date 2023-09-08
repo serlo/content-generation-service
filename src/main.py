@@ -1,7 +1,6 @@
-from dotenv import load_dotenv, find_dotenv
 from enum import Enum
+from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Query
-from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
 app = FastAPI()
@@ -42,6 +41,7 @@ load_dotenv(find_dotenv())
 
 
 @app.get("/exercises")
+# pylint: disable-next=R0913
 def generate_exercises(subject: str,
                        grade: int,
                        level: Difficulty,
