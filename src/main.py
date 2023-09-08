@@ -42,16 +42,17 @@ load_dotenv(find_dotenv())
 
 @app.get("/exercises")
 # pylint: disable-next=R0913
-def generate_exercises(subject: str,
-                       grade: int,
-                       level: Difficulty,
-                       topic: str,
-                       goal: str,
-                       category: ExerciseCategory,
-                       number_exercises: int,
-                       info: str,
-                       exercise_types: list[ExerciseType] = Query(None)
-                       ):
+def generate_exercises(
+    subject: str,
+    grade: int,
+    level: Difficulty,
+    topic: str,
+    goal: str,
+    category: ExerciseCategory,
+    number_exercises: int,
+    info: str,
+    exercise_types: list[ExerciseType] = Query(None),
+):
     template_string = """
 Erstelle {number_exercises} Aufgaben \
 für {category} \
@@ -70,10 +71,10 @@ Folgende Aufgabentypen sollen hierbei enthalten sein: {exercise_types}. \
         topic=topic,
         goal=goal,
         category=category.value,
-        exercise_types=', '.join([item.value for item in exercise_types]),
+        exercise_types=", ".join([item.value for item in exercise_types]),
         number_exercises=number_exercises,
-        info=info
-        )
+        info=info,
+    )
     # for first test just return the prompt instead of running it
     # generated_exercises = chat(prompt_to_generate_exercises)
     return prompt_to_generate_exercises[0].content
