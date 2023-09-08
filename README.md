@@ -12,7 +12,9 @@ The way through api.serlo.org is to check if a user is logged in and has the rol
     * You may use [asdf](https://asdf-vm.com/) for the installation.
 * Install the requirements using [pipenv](https://pipenv.pypa.io/en/latest/installation/#installing-pipenv)
 * Run `pipenv shell` to activate the project's [virtual environment](https://docs.python.org/3/library/venv.html). 
-* Run `pipenv install` to install the dependencies.
+* Run `pipenv install --dev` to install the development dependencies.
+* Run `pipenv run lint` to run the linting.
+* Run `pipenv run format` to format the code.
 
 
 ## Testing 
