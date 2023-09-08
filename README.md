@@ -37,5 +37,3 @@ Happy coding!
 ## Todo
 
 We yet have to properly define the arguments and output format of the service.
-
-CI is missing yet.
