@@ -1,6 +1,6 @@
 from dotenv import load_dotenv, find_dotenv
 from enum import Enum
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 import openai
@@ -50,9 +50,9 @@ def generate_exercises(subject: str,
                        topic: str,
                        goal: str,
                        category: ExerciseCategory,
-                       exercise_types: list[ExerciseType],
                        number_exercises: int,
-                       info: str
+                       info: str,
+                       exercise_types: list[ExerciseType] = Query(None)
                        ):
     template_string = """
 Erstelle {number_exercises} Aufgaben \
