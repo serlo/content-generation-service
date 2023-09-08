@@ -11,6 +11,13 @@ uvicorn = "<0.24.0,>=0.23.2"
 python-dotenv = "==1.0.0"
 
 [dev-packages]
+pylint = "==2.17.5"
+black = "==23.7.0"
+
+[scripts]
+lint = "pylint src"
+format = "black ."
+format_check = "black . --check"
 
 [requires]
 python_version = "3.11"
