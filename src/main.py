@@ -3,8 +3,6 @@ from enum import Enum
 from fastapi import FastAPI, Query
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
-import openai
-import os
 
 app = FastAPI()
 
