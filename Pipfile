@@ -13,11 +13,13 @@ python-dotenv = "==1.0.0"
 [dev-packages]
 pylint = "==2.17.5"
 black = "==23.7.0"
+mypy = "==1.5.1"
 
 [scripts]
 lint = "pylint src"
 format = "black ."
 format_check = "black . --check"
+type_check = "mypy src"
 
 [requires]
 python_version = "3.11"
