@@ -17,8 +17,8 @@ mypy = "==1.5.1"
 
 [scripts]
 lint = "pylint src"
-format = "black ."
-format_check = "black . --check"
+format = "black src"
+format_check = "black src --check"
 type_check = "mypy src"
 
 [requires]
