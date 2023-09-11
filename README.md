@@ -15,6 +15,7 @@ The way through api.serlo.org is to check if a user is logged in and has the rol
 * Run `pipenv install --dev` to install the development dependencies.
 * Run `pipenv run lint` to run the linting.
 * Run `pipenv run format` to format the code.
+* Run `pipenv run type_check` to run the static type checker ([mypy](https://github.com/python/mypy)).
 
 
 ## Testing 

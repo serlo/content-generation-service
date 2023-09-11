@@ -31,3 +31,6 @@ jobs:
 
       - name: Format
         run: pipenv run format_check
+
+      - name: Static Type Check
+        run: pipenv run type_check
