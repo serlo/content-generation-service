@@ -1,5 +1,6 @@
 services:
   server:
+    container_name: content-generation-service
     build:
       context: .
     ports:
