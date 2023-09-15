@@ -1,0 +1,23 @@
+name: Health Check
+on:
+  pull_request:
+  merge_group:
+
+env:
+  PR_NUMBER: ${{ github.event.number }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Start the content-generation-service
+        run: docker-compose up -d
+      - name: Test for Python in the content-generation-service container
+        run: docker exec content-generation-service python -V
+      - name: Wait for the container
+        run: sleep 5
+      - name: Test health endpoint
+        run: curl -s --retry 10 --retry-connrefused http://0.0.0.0:8080/health
