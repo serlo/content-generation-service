@@ -38,4 +38,4 @@ jobs:
           tags: eu.gcr.io/serlo-shared/content-generation-service:${{ needs.update-version.outputs.tag }}
       - name: Test for python in the content-generation-service
         run:
-          docker run -it --rm eu.gcr.io/serlo-shared/content-generation-service:${{ needs.update-version.outputs.tag }} python -V
+          docker run --rm eu.gcr.io/serlo-shared/content-generation-service:${{ needs.update-version.outputs.tag }} python -V
