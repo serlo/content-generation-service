@@ -27,11 +27,6 @@ class ExerciseCategory(Enum):
 class ExerciseType(Enum):
     MULTIPLE_CHOICE: str = "Multiple Choice"
     SINGLE_CHOICE: str = "Single Choice"
-    GAP_TEXT: str = "Lückentext"
-    TRUE_FALSE: str = "Wahr Falsch"
-    MAPPING: str = "Zuordnung"
-    FREE_TEXT: str = "Freitext"
-    FACTUAL_TASK: str = "Sachaufgabe"
     SINGLE_WORD_SOLUTION: str = "Lösung mit 1 Wort"
     SINGLE_NUMBER_SOLUTION: str = "Lösung mit 1 Zahl"
 
@@ -51,18 +46,29 @@ def generate_exercises(
     goal: str,
     category: ExerciseCategory,
     number_exercises: int,
-    info: str,
+    previous_knowledge: str,
     exercise_types: list[ExerciseType] = Query(None),
 ):
     template_string = """
-Erstelle {number_exercises} Aufgaben \
-für {category} \
-in {subject} \
-in der Jahrgangsstufe {grade}. \
-Der Schwierigkeitsgrad soll {level} sein. \
-Das Ziel der Aufgaben ist: {goal} \
-Folgende Aufgabentypen sollen hierbei enthalten sein: {exercise_types}. \
-{info}
+Erstelle für Schüler des {grade}. Jahrgangs \
+im Fach {subject} \
+zum Thema "{topic}" eine spannende Aufgabe \
+mit {number_exercises} voneinander unabhängigen Teilaufgaben. \
+Erstelle für jede Teilaufgabe eine Aufgabenstellung zur Berechnung, \
+deren Lösung aus einer Zahl besteht. \
+Füge eine sinnvolle Überschrift hinzu, \
+aus der das Thema der Aufgabe hervorgeht. \
+Die Schüler haben folgendes Vorwissen: {previous_knowledge}. \
+Nach Bearbeiten der Aufgabe beherrschen die Schüler Folgendes besser: {goal}. \
+Verwende leichte Sprache. \
+Das Anforderungsniveau soll schwer sein. \
+Beachte folgende  Charakterisierung der Schüler: \
+Die Schüler können gut abstrakt denken. \
+Beschreibe in ganzen Sätzen den Rechenweg, den die Schüler nutzen können, \
+um die Aufgabe zu lösen, ohne das korrekte Ergebnis zu nennen. \
+Nenne das korrekte Ergebnis. \
+Beschreibe in ganzen Sätzen für eine Lehrkraft, \
+welche Fehler die Schüler möglicherweise machen könnten. \
 """
     prompt_template = ChatPromptTemplate.from_template(template_string)
     prompt_to_generate_exercises = prompt_template.format_messages(
@@ -74,6 +80,6 @@ Folgende Aufgabentypen sollen hierbei enthalten sein: {exercise_types}. \
         category=category.value,
         exercise_types=", ".join([item.value for item in exercise_types]),
         number_exercises=number_exercises,
-        info=info,
+        previous_knowledge=previous_knowledge,
     )
     return chat(prompt_to_generate_exercises)
