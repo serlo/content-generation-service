@@ -11,6 +11,8 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - id: version
         uses: salsify/action-detect-and-tag-new-version@v2
         with:
