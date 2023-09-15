@@ -1,6 +1,7 @@
 from enum import Enum
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Query
+from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
 app = FastAPI()
@@ -37,7 +38,7 @@ class ExerciseType(Enum):
 
 # read local .env file
 load_dotenv(find_dotenv())
-# chat = ChatOpenAI(temperature=0.0)
+chat = ChatOpenAI(temperature=0.0)
 
 
 @app.get("/exercises")
@@ -75,6 +76,4 @@ Folgende Aufgabentypen sollen hierbei enthalten sein: {exercise_types}. \
         number_exercises=number_exercises,
         info=info,
     )
-    # for first test just return the prompt instead of running it
-    # generated_exercises = chat(prompt_to_generate_exercises)
-    return prompt_to_generate_exercises[0].content
+    return chat(prompt_to_generate_exercises)

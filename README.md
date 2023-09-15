@@ -20,6 +20,15 @@ The way through api.serlo.org is to check if a user is logged in and has the rol
 
 ## Usage 
 
+### Setup 
+
+Copy the `.env.sample` file into a filed named `.env`, and change the `OPENAI_API_KEY` value to a valid one: 
+```bash
+cp .env.sample .env
+```
+
+### Running the service
+
 To run the service, go to the src/ folder and run
 ```
 uvicorn main:app --reload --port=8080
