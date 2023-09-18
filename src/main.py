@@ -1,6 +1,6 @@
 from enum import Enum
 from dotenv import load_dotenv, find_dotenv
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
@@ -13,9 +13,9 @@ def get_health_status():
 
 
 class Difficulty(Enum):
-    LOW: str = "leicht"
-    MEDIUM: str = "moderat"
-    HIGH: str = "knifflig"
+    LOW: str = "low"
+    MEDIUM: str = "medium"
+    HIGH: str = "high"
 
 
 difficulty_to_german: dict[str, tuple[str, str]] = {
@@ -25,22 +25,32 @@ difficulty_to_german: dict[str, tuple[str, str]] = {
 }
 
 
-class ExerciseCategory(Enum):
-    SINGLE: str = "eine Einzelaufgabe"
-    QUIZ: str = "ein Quiz"
-    TEST: str = "einen Test"
-
-
 class ExerciseType(Enum):
-    MULTIPLE_CHOICE: str = "Multiple Choice"
-    SINGLE_CHOICE: str = "Single Choice"
-    SINGLE_WORD_SOLUTION: str = "Lösung mit 1 Wort"
-    SINGLE_NUMBER_SOLUTION: str = "Lösung mit 1 Zahl"
+    MULTIPLE_CHOICE: str = "multiple choice"
+    SINGLE_CHOICE: str = "single choice"
+    SINGLE_WORD_SOLUTION: str = "single word solution"
+    SINGLE_NUMBER_SOLUTION: str = "single number solution"
 
 
-# read local .env file
-load_dotenv(find_dotenv())
-chat = ChatOpenAI(temperature=0.0)
+exercise_type_to_german: dict[str, str] = {
+    "multiple choice": "Multiple Choice als JSON Objekt mit den Keys question, options und correct_options. Der Key options soll als Value eine Liste aller möglicher Antworten haben, der Key correct_options ein Liste mit den Indizes aller korrekten Antworten",
+    "single choice": "Single Choice als JSON Objekt mit den Keys question, options und correct_option. Der Key options soll als Value eine Liste aller möglicher Antworten haben, der Key correct_options den Index der korrekten Antwort",
+    "single word solution": "Antwortfeld mit einem Wort als Lösung, als JSON Objekt mit den Keys question und solution",
+    "single number solution": "Antwortfeld mit einer Zahl als Lösung, als JSON Objekt mit den Keys question und solution",
+}
+
+has_key: bool = False
+try:
+    # read local .env file
+    load_dotenv(find_dotenv())
+    chat = ChatOpenAI(temperature=0.0)
+    has_key = True
+except ValueError as e:
+    print(e)
+    print(
+        """As there is no key, \
+this service now responds with the prompt instead of the output."""
+    )
 
 
 @app.get("/exercises")
@@ -48,45 +58,46 @@ chat = ChatOpenAI(temperature=0.0)
 def generate_exercises(
     subject: str,
     grade: int,
-    level: Difficulty,
+    difficulty: Difficulty,
     topic: str,
     goal: str,
-    category: ExerciseCategory,
-    number_exercises: int,
+    subtasks: int,
     previous_knowledge: str,
-    exercise_types: list[ExerciseType] = Query(None),
+    exercise_type: ExerciseType,
 ):
+    difficulty_and_meaning: tuple[str, str] = \
+        difficulty_to_german[difficulty.value]
     template_string = """
 Erstelle für Schüler des {grade}. Jahrgangs \
 im Fach {subject} \
-zum Thema "{topic}" eine spannende Aufgabe \
-mit {number_exercises} voneinander unabhängigen Teilaufgaben. \
-Erstelle für jede Teilaufgabe eine Aufgabenstellung zur Berechnung, \
-deren Lösung aus einer Zahl besteht. \
-Füge eine sinnvolle Überschrift hinzu, \
+zum Thema "{topic}" eine spannende Aufgabe{subtasks} vom Typ {exercise_type}. \
+Formatiere alle Mathe-Symbole in LateX. \
+Füge eine sinnvolle Überschrift für die Aufgabe unter dem Key heading hinzu, \
 aus der das Thema der Aufgabe hervorgeht. \
 Die Schüler haben folgendes Vorwissen: {previous_knowledge}. \
-Nach Bearbeiten der Aufgabe beherrschen die Schüler Folgendes besser: {goal}. \
+Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}. \
 Verwende leichte Sprache. \
-Das Anforderungsniveau soll schwer sein. \
-Beachte folgende  Charakterisierung der Schüler: \
-Die Schüler können gut abstrakt denken. \
-Beschreibe in ganzen Sätzen den Rechenweg, den die Schüler nutzen können, \
-um die Aufgabe zu lösen, ohne das korrekte Ergebnis zu nennen. \
-Nenne das korrekte Ergebnis. \
-Beschreibe in ganzen Sätzen für eine Lehrkraft, \
-welche Fehler die Schüler möglicherweise machen könnten. \
+Das Anforderungsniveau soll {difficulty} sein. \
+Beachte folgende  Charakterisierung der Schüler: {difficulty_text} \
 """
     prompt_template = ChatPromptTemplate.from_template(template_string)
     prompt_to_generate_exercises = prompt_template.format_messages(
         subject=subject,
         grade=grade,
-        level=level.value,
+        difficulty=difficulty_and_meaning[0],
+        difficulty_text=difficulty_and_meaning[1],
         topic=topic,
         goal=goal,
-        category=category.value,
-        exercise_types=", ".join([item.value for item in exercise_types]),
-        number_exercises=number_exercises,
+        exercise_type=exercise_type_to_german[exercise_type.value],
+        subtasks=(
+            ""
+            if subtasks < 2
+            else " mit " + str(subtasks) + " voneinander unabhängigen Teilaufgaben"
+        ),
         previous_knowledge=previous_knowledge,
     )
-    return chat(prompt_to_generate_exercises)
+    return (
+        chat(prompt_to_generate_exercises)
+        if has_key
+        else prompt_to_generate_exercises[0].content
+    )
