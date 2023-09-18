@@ -77,7 +77,8 @@ Die Schüler haben folgendes Vorwissen: {previous_knowledge}. \
 Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}. \
 Verwende leichte Sprache. \
 Das Anforderungsniveau soll {difficulty} sein. \
-Beachte folgende  Charakterisierung der Schüler: {difficulty_text} \
+Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
+{json_reminder}
 """
     prompt_template = ChatPromptTemplate.from_template(template_string)
     prompt_to_generate_exercises = prompt_template.format_messages(
@@ -92,6 +93,11 @@ Beachte folgende  Charakterisierung der Schüler: {difficulty_text} \
             ""
             if subtasks < 2
             else " mit " + str(subtasks) + " voneinander unabhängigen Teilaufgaben"
+        ),
+        json_reminder=(
+            "Stelle sicher, dass deine Antwort ein unnamed JSON Objekt mit genau den genannten Keys ist"
+            if subtasks < 2
+            else "Stelle sicher, dass deine Antwort ein unnamed JSON Objekt ist, das den Key heading besitzt sowie den key subtasks, der eine Liste an unnamed Objekten enthält wovon jedes genau die bereits genannten Keys besitzt."
         ),
         previous_knowledge=previous_knowledge,
     )
