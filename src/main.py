@@ -18,6 +18,13 @@ class Difficulty(Enum):
     HIGH: str = "knifflig"
 
 
+difficulty_to_german: dict[str, tuple[str, str]] = {
+    "low": ("leicht", "Die Schüler haben Schwierigkeiten, abstrakt zu denken"),
+    "medium": ("moderat", "Die Schüler haben gute Vorkenntnisse"),
+    "high": ("schwer", "Die Schüler können gut abstrakt denken"),
+}
+
+
 class ExerciseCategory(Enum):
     SINGLE: str = "eine Einzelaufgabe"
     QUIZ: str = "ein Quiz"
