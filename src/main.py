@@ -72,9 +72,9 @@ im Fach {subject} \
 zum Thema "{topic}" eine spannende Aufgabe{subtasks} vom Typ {exercise_type}. \
 Formatiere alle Mathe-Symbole in LateX. \
 Füge eine sinnvolle Überschrift für die Aufgabe unter dem Key heading hinzu, \
-aus der das Thema der Aufgabe hervorgeht. \
-Die Schüler haben folgendes Vorwissen: {previous_knowledge}. \
-Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}. \
+aus der das Thema der Aufgabe hervorgeht.
+Die Schüler haben folgendes Vorwissen: {previous_knowledge}
+Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}
 Verwende leichte Sprache. \
 Das Anforderungsniveau soll {difficulty} sein. \
 Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
