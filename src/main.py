@@ -1,6 +1,6 @@
 from enum import Enum
 from dotenv import load_dotenv, find_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
@@ -57,7 +57,7 @@ the key correct_option the index of the correct answer""",
     ),
 }
 
-has_key: bool = False
+can_authenticate: bool = False
 try:
     load_dotenv(find_dotenv())
     chat = ChatOpenAI(temperature=0.0)
@@ -70,7 +70,7 @@ this service now responds with the prompt instead of the output."""
     )
 
 
-@app.get("/exercises")
+@app.get("/exercises", status_code=200)
 # pylint: disable-next=R0913
 def generate_exercises(
     subject: str,
@@ -81,6 +81,7 @@ def generate_exercises(
     subtasks: int,
     previous_knowledge: str,
     exercise_type: ExerciseType,
+    response: Response,
 ):
     difficulty_and_meaning: tuple[str, str] = difficulty_to_prompt_texts[
         difficulty.value
@@ -131,8 +132,12 @@ exercises into an unnamed JSON object with {json_description} \
         ),
         previous_knowledge=previous_knowledge,
     )
-    return (
-        chat(prompt_to_generate_exercises)
-        if has_key
-        else prompt_to_generate_exercises[0].content
-    )
+    if can_authenticate:
+        llm_response = chat(prompt_to_generate_exercises)
+        json_exercise = llm_response.split('```')[1]
+        return json_exercise
+    else:
+        # 503: "The server is unavailable to handle this request right now."
+        response.status_code = 503
+        # todo: What should we return in this case?
+        return prompt_to_generate_exercises[0].content
