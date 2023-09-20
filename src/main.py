@@ -1,6 +1,6 @@
 from enum import Enum
 from dotenv import load_dotenv, find_dotenv
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 
@@ -57,17 +57,13 @@ the key correct_option the index of the correct answer""",
     ),
 }
 
-can_authenticate: bool = False
+CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
     chat = ChatOpenAI(temperature=0.0)
-    has_key = True
+    CAN_AUTHENTICATE = True
 except ValueError as e:
     print(e)
-    print(
-        """As there is no key, \
-this service now responds with the prompt instead of the output."""
-    )
 
 
 @app.get("/exercises", status_code=200)
@@ -132,12 +128,12 @@ exercises into an unnamed JSON object with {json_description} \
         ),
         previous_knowledge=previous_knowledge,
     )
-    if can_authenticate:
+    print(prompt_to_generate_exercises[0].content)
+    if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
-        json_exercise = llm_response.split('```')[1]
-        return json_exercise
-    else:
-        # 503: "The server is unavailable to handle this request right now."
-        response.status_code = 503
-        # todo: What should we return in this case?
-        return prompt_to_generate_exercises[0].content
+        print(llm_response)
+        return llm_response.split('```')[1]
+    # 503: "The server is unavailable to handle this request right now."
+    response.status_code = 503
+    # What should we return in this case?
+    return "cannot use LLM"
