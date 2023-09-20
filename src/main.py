@@ -49,11 +49,11 @@ the key correct_option the index of the correct answer""",
     ),
     "single word solution": (
         ", deren Lösung aus einem Wort besteht.",
-        "question und solution",
+        "question and solution",
     ),
     "single number solution": (
-        "zur Berechnung, deren Lösung aus einer Zahl besteht."
-        "question und solution"
+        "zur Berechnung, deren Lösung aus einer Zahl besteht.",
+        "question and solution",
     ),
 }
 
@@ -115,9 +115,7 @@ exercises into an unnamed JSON object with {json_description} \
         subtasks=(
             ""
             if subtasks < 2
-            else " mit "
-            + str(subtasks)
-            + " voneinander unabhängigen Teilaufgaben"
+            else " mit " + str(subtasks) + " voneinander unabhängigen Teilaufgaben"
         ),
         json_description=(
             "with precisely the keys heading, "
@@ -132,7 +130,7 @@ exercises into an unnamed JSON object with {json_description} \
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
         print(llm_response)
-        return llm_response.split('```')[1]
+        return llm_response.split("```")[1]
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
     # What should we return in this case?
