@@ -18,7 +18,7 @@ class Difficulty(Enum):
     HIGH: str = "high"
 
 
-difficulty_to_german: dict[str, tuple[str, str]] = {
+difficulty_to_prompt_texts: dict[str, tuple[str, str]] = {
     "low": ("leicht", "Die Schüler haben Schwierigkeiten, abstrakt zu denken"),
     "medium": ("moderat", "Die Schüler haben gute Vorkenntnisse"),
     "high": ("schwer", "Die Schüler können gut abstrakt denken"),
@@ -32,16 +32,33 @@ class ExerciseType(Enum):
     SINGLE_NUMBER_SOLUTION: str = "single number solution"
 
 
-exercise_type_to_german: dict[str, str] = {
-    "multiple choice": "Multiple Choice als JSON Objekt mit den Keys question, options und correct_options. Der Key options soll als Value eine Liste aller möglicher Antworten haben, der Key correct_options ein Liste mit den Indizes aller korrekten Antworten",
-    "single choice": "Single Choice als JSON Objekt mit den Keys question, options und correct_option. Der Key options soll als Value eine Liste aller möglicher Antworten haben, der Key correct_options den Index der korrekten Antwort",
-    "single word solution": "Antwortfeld mit einem Wort als Lösung, als JSON Objekt mit den Keys question und solution",
-    "single number solution": "Antwortfeld mit einer Zahl als Lösung, als JSON Objekt mit den Keys question und solution",
+exercise_type_to_prompt_texts: dict[str, tuple[str, str]] = {
+    "multiple choice": (
+        """vom Typ Multiple Choice, \
+bei der es auch mehr als eine korrekte Antwort geben kann""",
+        """question, options and correct_options. \
+The key options shall have as its value a list of all possible answers, \
+the key correct_options a list with the indices of all correct answers""",
+    ),
+    "single choice": (
+        """vom Typ Single Choice, bei der aus verschiedenen \
+Antwortmöglichkeiten genau 1 korrekte Antwort ausgewählt werden muss""",
+        """question, options and correct_options. \
+The key options shall have as its value a list of all possible answers, \
+the key correct_option the index of the correct answer""",
+    ),
+    "single word solution": (
+        ", deren Lösung aus einem Wort besteht.",
+        "question und solution",
+    ),
+    "single number solution": (
+        "zur Berechnung, deren Lösung aus einer Zahl besteht."
+        "question und solution"
+    ),
 }
 
 has_key: bool = False
 try:
-    # read local .env file
     load_dotenv(find_dotenv())
     chat = ChatOpenAI(temperature=0.0)
     has_key = True
@@ -65,21 +82,28 @@ def generate_exercises(
     previous_knowledge: str,
     exercise_type: ExerciseType,
 ):
-    difficulty_and_meaning: tuple[str, str] = difficulty_to_german[
+    difficulty_and_meaning: tuple[str, str] = difficulty_to_prompt_texts[
         difficulty.value
     ]
-    template_string = """Erstelle für Schüler des {grade}. Jahrgangs \
-im Fach {subject} \
-zum Thema "{topic}" eine spannende Aufgabe{subtasks} vom Typ {exercise_type}. \
-Formatiere alle Mathe-Symbole in LateX. \
-Füge eine sinnvolle Überschrift für die Aufgabe unter dem Key heading hinzu, \
-aus der das Thema der Aufgabe hervorgeht.
-Die Schüler haben folgendes Vorwissen: {previous_knowledge}
+    exercise_type_and_keys: tuple[str, str] = exercise_type_to_prompt_texts[
+        exercise_type.value
+    ]
+    template_string = """Du bist eine kreative Lehrkraft, die spannende \
+Aufgaben für Schüler des {grade}. Jahrgangs im Fach {subject} entwickelt. \
+Erstelle zum Thema "{topic}" eine Aufgabe{subtasks} vom Typ {exercise_type}. \
+Füge eine sinnvolle Überschrift hinzu, aus der das Thema der Aufgabe \
+hervorgeht. Die Schüler haben folgendes Vorwissen: {previous_knowledge}\
 Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}
-Verwende leichte Sprache. \
-Das Anforderungsniveau soll {difficulty} sein. \
+Verwende leichte Sprache. Das Anforderungsniveau soll {difficulty} sein. \
 Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
-{json_reminder}
+Beschreibe in ganzen Sätzen den Rechenweg, den die Schüler nutzen können, \
+um die Aufgabe zu lösen, ohnedas korrekte Ergebnis zu nennen. \
+Nenne das korrekte Ergebnis. Beschreibe in ganzen Sätzen für eine Lehrkraft, \
+welche Fehler die Schüler möglicherweise machen könnten.\
+
+After creating the exercises, put three backticks (```) and convert the \
+exercises into an unnamed JSON object with {json_description} \
+{key_description}. Format all maths symbols in LateX. \
 """
     prompt_template = ChatPromptTemplate.from_template(template_string)
     prompt_to_generate_exercises = prompt_template.format_messages(
@@ -89,7 +113,8 @@ Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
         difficulty_text=difficulty_and_meaning[1],
         topic=topic,
         goal=goal,
-        exercise_type=exercise_type_to_german[exercise_type.value],
+        exercise_type=exercise_type_and_keys[0],
+        key_description=exercise_type_and_keys[1],
         subtasks=(
             ""
             if subtasks < 2
@@ -97,10 +122,12 @@ Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
             + str(subtasks)
             + " voneinander unabhängigen Teilaufgaben"
         ),
-        json_reminder=(
-            "Stelle sicher, dass deine Antwort ein unnamed JSON Objekt mit genau den genannten Keys ist"
+        json_description=(
+            "with precisely the keys heading, "
             if subtasks < 2
-            else "Stelle sicher, dass deine Antwort ein unnamed JSON Objekt ist, das den Key heading besitzt sowie den key subtasks, der eine Liste an unnamed Objekten enthält wovon jedes genau die bereits genannten Keys besitzt."
+            else """that has the key heading as well as the key subtasks \
+            that contains a list of unnamed objects \
+            where each has precisely the keys"""
         ),
         previous_knowledge=previous_knowledge,
     )
