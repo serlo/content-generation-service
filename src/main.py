@@ -65,8 +65,9 @@ def generate_exercises(
     previous_knowledge: str,
     exercise_type: ExerciseType,
 ):
-    difficulty_and_meaning: tuple[str, str] = \
-        difficulty_to_german[difficulty.value]
+    difficulty_and_meaning: tuple[str, str] = difficulty_to_german[
+        difficulty.value
+    ]
     template_string = """Erstelle für Schüler des {grade}. Jahrgangs \
 im Fach {subject} \
 zum Thema "{topic}" eine spannende Aufgabe{subtasks} vom Typ {exercise_type}. \
@@ -92,7 +93,9 @@ Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
         subtasks=(
             ""
             if subtasks < 2
-            else " mit " + str(subtasks) + " voneinander unabhängigen Teilaufgaben"
+            else " mit "
+            + str(subtasks)
+            + " voneinander unabhängigen Teilaufgaben"
         ),
         json_reminder=(
             "Stelle sicher, dass deine Antwort ein unnamed JSON Objekt mit genau den genannten Keys ist"
