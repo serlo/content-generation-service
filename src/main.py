@@ -95,7 +95,7 @@ Verwende leichte Sprache. Das Anforderungsniveau soll {difficulty} sein. \
 Beachte folgende Charakterisierung der Schüler: {difficulty_text}. \
 Stelle die notierte Aufgabe zum Hochladen \
 auf eine Lernplattform in einem unnamed JSON Objekt dar {json_description} \
-{key_description}. Formatiere all mathematischen Symbole in LateX. \
+{key_description}. Formatiere alle mathematischen Symbole in LateX. \
 """
     prompt_template = ChatPromptTemplate.from_template(template_string)
     prompt_to_generate_exercises = prompt_template.format_messages(
