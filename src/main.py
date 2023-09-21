@@ -37,31 +37,31 @@ exercise_type_to_prompt_texts: dict[str, tuple[str, str]] = {
     "multiple choice": (
         """vom Typ Multiple Choice, \
 bei der es auch mehr als eine korrekte Antwort geben kann""",
-        """question, options und correct_options. \
+        """type: "multiple_choice", question, options und correct_options. \
 Der Key options soll als Value eine Liste von Antwortmöglichkeiten haben, \
 der Key correct_options eine Liste mit den Indizes der korrekten Antworten""",
     ),
     "single choice": (
         """vom Typ Single Choice, bei der aus verschiedenen \
 Antwortmöglichkeiten genau 1 korrekte Antwort ausgewählt werden muss""",
-        """question, options und correct_options. \
+        """type: "single_choice", question, options und correct_options. \
 Der Key options soll als Value eine Liste von Antwortmöglichkeiten haben, \
 der Key correct_option den Index der korrekten Antwort""",
     ),
     "single word solution": (
         ", deren Lösung aus einem Wort besteht",
-        "question und correct_answer",
+        "type: 'short_answer', question und correct_answer",
     ),
     "single number solution": (
         "zur Berechnung, deren Lösung aus einer Zahl besteht",
-        "question und correct_answer",
+        "type: 'short_answer', question und correct_answer",
     ),
 }
 
 CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
-    chat = ChatOpenAI(temperature=0.0)
+    chat = ChatOpenAI(temperature=0.4)
     CAN_AUTHENTICATE = True
 except ValueError as e:
     print(e)
@@ -94,12 +94,7 @@ hervorgeht. Die Schüler haben folgendes Vorwissen: {previous_knowledge}
 Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}
 Verwende leichte Sprache. Das Anforderungsniveau soll {difficulty} sein. \
 Beachte folgende Charakterisierung der Schüler: {difficulty_text}. \
-Beschreibe in ganzen Sätzen den Rechenweg, den die Schüler nutzen können, \
-um die Aufgabe zu lösen, ohne das korrekte Ergebnis zu nennen. \
-Nenne das korrekte Ergebnis. Beschreibe in ganzen Sätzen für eine Lehrkraft, \
-welche Fehler die Schüler möglicherweise machen könnten. \
-Nachdem du die Aufgabe zuerst in Textform aufgeschrieben hast, \
-mache drei Backticks (```) und stelle dann die notierte Aufgabe zum Hochladen \
+Stelle die notierte Aufgabe zum Hochladen \
 auf eine Lernplattform in einem unnamed JSON Objekt dar {json_description} \
 {key_description}. Formatiere all mathematischen Symbole in LateX. \
 """
@@ -119,24 +114,19 @@ auf eine Lernplattform in einem unnamed JSON Objekt dar {json_description} \
             else " mit " + str(subtasks) + " voneinander unabhängigen Teilaufgaben"
         ),
         json_description=(
-            "mit genau den Keys heading,"
-            if subtasks < 2
-            else """mit dem Key heading und dem Key subtasks \
+            """mit dem Key heading und dem Key subtasks \
 mit einer Liste von unnamed Objekten als Value, \
 wovon jedes genau die folgenden Keys hat:"""
         ),
         previous_knowledge=previous_knowledge,
     )
-    print(prompt_to_generate_exercises[0].content)
+    print(f'PROMPT: {prompt_to_generate_exercises[0].content} \n')
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
-        print(llm_response)
+        print(f'RESPONSE: {llm_response}')
         try:
             return (
-                get_buffer_string([llm_response])
-                .split("```")[1]
-                .lstrip("json")
-                .lstrip("\n")
+                llm_response.content
             )
         except IndexError:
             response.status_code = 500
