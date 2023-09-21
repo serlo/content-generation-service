@@ -2,7 +2,6 @@ from enum import Enum
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
-from langchain.schema.messages import get_buffer_string
 from langchain.prompts import ChatPromptTemplate
 
 app = FastAPI()
@@ -120,14 +119,12 @@ wovon jedes genau die folgenden Keys hat:"""
         ),
         previous_knowledge=previous_knowledge,
     )
-    print(f'PROMPT: {prompt_to_generate_exercises[0].content} \n')
+    print(f"PROMPT: {prompt_to_generate_exercises[0].content} \n")
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
-        print(f'RESPONSE: {llm_response}')
+        print(f"RESPONSE: {llm_response}")
         try:
-            return (
-                llm_response.content
-            )
+            return llm_response.content
         except IndexError:
             response.status_code = 500
             return "LLM produced output not in desired format"
