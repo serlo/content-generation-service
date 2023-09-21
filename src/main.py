@@ -2,6 +2,7 @@ from enum import Enum
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
+from langchain.schema.messages import get_buffer_string
 from langchain.prompts import ChatPromptTemplate
 
 app = FastAPI()
@@ -36,24 +37,24 @@ exercise_type_to_prompt_texts: dict[str, tuple[str, str]] = {
     "multiple choice": (
         """vom Typ Multiple Choice, \
 bei der es auch mehr als eine korrekte Antwort geben kann""",
-        """question, options and correct_options. \
-The key options shall have as its value a list of all possible answers, \
-the key correct_options a list with the indices of all correct answers""",
+        """question, options und correct_options. \
+Der Key options soll als Value eine Liste von Antwortmöglichkeiten haben, \
+der Key correct_options eine Liste mit den Indizes der korrekten Antworten""",
     ),
     "single choice": (
         """vom Typ Single Choice, bei der aus verschiedenen \
 Antwortmöglichkeiten genau 1 korrekte Antwort ausgewählt werden muss""",
-        """question, options and correct_options. \
-The key options shall have as its value a list of all possible answers, \
-the key correct_option the index of the correct answer""",
+        """question, options und correct_options. \
+Der Key options soll als Value eine Liste von Antwortmöglichkeiten haben, \
+der Key correct_option den Index der korrekten Antwort""",
     ),
     "single word solution": (
-        ", deren Lösung aus einem Wort besteht.",
-        "question and solution",
+        ", deren Lösung aus einem Wort besteht",
+        "question und correct_answer",
     ),
     "single number solution": (
-        "zur Berechnung, deren Lösung aus einer Zahl besteht.",
-        "question and solution",
+        "zur Berechnung, deren Lösung aus einer Zahl besteht",
+        "question und correct_answer",
     ),
 }
 
@@ -87,20 +88,20 @@ def generate_exercises(
     ]
     template_string = """Du bist eine kreative Lehrkraft, die spannende \
 Aufgaben für Schüler des {grade}. Jahrgangs im Fach {subject} entwickelt. \
-Erstelle zum Thema "{topic}" eine Aufgabe{subtasks} vom Typ {exercise_type}. \
+Erstelle zum Thema "{topic}" eine Aufgabe{subtasks} {exercise_type}. \
 Füge eine sinnvolle Überschrift hinzu, aus der das Thema der Aufgabe \
-hervorgeht. Die Schüler haben folgendes Vorwissen: {previous_knowledge}\
+hervorgeht. Die Schüler haben folgendes Vorwissen: {previous_knowledge}
 Nach Bearbeiten der Aufgabe beherrschen die Schüler folgendes besser: {goal}
 Verwende leichte Sprache. Das Anforderungsniveau soll {difficulty} sein. \
-Beachte folgende  Charakterisierung der Schüler: {difficulty_text}. \
+Beachte folgende Charakterisierung der Schüler: {difficulty_text}. \
 Beschreibe in ganzen Sätzen den Rechenweg, den die Schüler nutzen können, \
-um die Aufgabe zu lösen, ohnedas korrekte Ergebnis zu nennen. \
+um die Aufgabe zu lösen, ohne das korrekte Ergebnis zu nennen. \
 Nenne das korrekte Ergebnis. Beschreibe in ganzen Sätzen für eine Lehrkraft, \
-welche Fehler die Schüler möglicherweise machen könnten.\
-
-After creating the exercises, put three backticks (```) and convert the \
-exercises into an unnamed JSON object with {json_description} \
-{key_description}. Format all maths symbols in LateX. \
+welche Fehler die Schüler möglicherweise machen könnten. \
+Nachdem du die Aufgabe zuerst in Textform aufgeschrieben hast, \
+mache drei Backticks (```) und stelle dann die notierte Aufgabe zum Hochladen \
+auf eine Lernplattform in einem unnamed JSON Objekt dar {json_description} \
+{key_description}. Formatiere all mathematischen Symbole in LateX. \
 """
     prompt_template = ChatPromptTemplate.from_template(template_string)
     prompt_to_generate_exercises = prompt_template.format_messages(
@@ -118,11 +119,11 @@ exercises into an unnamed JSON object with {json_description} \
             else " mit " + str(subtasks) + " voneinander unabhängigen Teilaufgaben"
         ),
         json_description=(
-            "with precisely the keys heading, "
+            "mit genau den Keys heading,"
             if subtasks < 2
-            else """that has the key heading as well as the key subtasks \
-            that contains a list of unnamed objects \
-            where each has precisely the keys"""
+            else """mit dem Key heading und dem Key subtasks \
+mit einer Liste von unnamed Objekten als Value, \
+wovon jedes genau die folgenden Keys hat:"""
         ),
         previous_knowledge=previous_knowledge,
     )
@@ -130,7 +131,16 @@ exercises into an unnamed JSON object with {json_description} \
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
         print(llm_response)
-        return llm_response.split("```")[1]
+        try:
+            return (
+                get_buffer_string([llm_response])
+                .split("```")[1]
+                .lstrip("json")
+                .lstrip("\n")
+            )
+        except IndexError:
+            response.status_code = 500
+            return "LLM produced output not in desired format"
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
     # What should we return in this case?
