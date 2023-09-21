@@ -45,7 +45,7 @@ der Key correct_options eine Liste mit den Indizes der korrekten Antworten""",
 Antwortmöglichkeiten genau 1 korrekte Antwort ausgewählt werden muss""",
         """type: "single_choice", question, options und correct_options. \
 Der Key options soll als Value eine Liste von Antwortmöglichkeiten haben, \
-der Key correct_option den Index der korrekten Antwort""",
+der Key correct_options den Index der korrekten Antwort""",
     ),
     "single word solution": (
         ", deren Lösung aus einem Wort besteht",
