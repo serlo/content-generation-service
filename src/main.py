@@ -1,4 +1,4 @@
-import logging
+import logging.config
 from enum import Enum
 from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
