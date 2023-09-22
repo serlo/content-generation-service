@@ -69,7 +69,7 @@ try:
     chat = ChatOpenAI(temperature=0.4)
     CAN_AUTHENTICATE = True
 except ValueError as e:
-    print(e)
+    logger.error(e)
 
 
 @app.get("/exercises", status_code=200)
@@ -129,12 +129,7 @@ wovon jedes genau die folgenden Keys hat:"""
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
         logger.debug('RESPONSE: %s', llm_response)
-        try:
-            return llm_response.content
-        except IndexError:
-            response.status_code = 500
-            return "LLM produced output not in desired format"
+        return llm_response.content
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
-    # What should we return in this case?
     return "cannot use LLM"
