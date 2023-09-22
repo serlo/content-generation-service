@@ -125,10 +125,10 @@ wovon jedes genau die folgenden Keys hat:"""
         ),
         previous_knowledge=previous_knowledge,
     )
-    logger.debug('PROMPT: %s', prompt_to_generate_exercises[0].content)
+    logger.debug("PROMPT: %s", prompt_to_generate_exercises[0].content)
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
-        logger.debug('RESPONSE: %s', llm_response)
+        logger.debug("RESPONSE: %s", llm_response)
         return llm_response.content
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
