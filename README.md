@@ -1,6 +1,6 @@
 # content-generation-service
 
-The purpose if this service is to convert given arguments into a prompt, use an LLM and send the result back.
+The purpose of this service is to convert given arguments into a prompt, use an LLM and send the result back.
 
 The service will receive queries from api.serlo.org which should receive them via GraphQL operation from frontend. 
 
@@ -37,16 +37,10 @@ where reload is optional to well reload the app when you change the code.
 
 Or using Docker, simply run: `docker compose up -d`
 
-To test an API endpoint, open your browser and send a request, for example
-```
-localhost:8082/exercises?subject=Mathe&grade=8&level=moderat&topic=Bruchrechnung&goal=Die Schüler können Brüche erweitern und kürzen.&category=ein Quiz&number_exercises=10&info="Das Quiz wird im Rahmen des Unterrichts an einer Mittelschule eingesetzt. Die Schülerinnen kennen die Grundlagen der Bruchrechnung."&exercise_types="Multiple Choice"
-```
-You can also check the docs to see all required arguments including their types without looking into the code:
+Your first step will likely be a look at
 ```
 http://localhost:8082/docs#/
 ```
+where you can use the "Try it out" button for an endpoint to test it or generate a request URL.
+
 Happy coding!
-
-## Todo
-
-We yet have to properly define the arguments and output format of the service.
