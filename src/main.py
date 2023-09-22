@@ -67,8 +67,7 @@ def generate_exercises(
 ):
     difficulty_and_meaning: tuple[str, str] = \
         difficulty_to_german[difficulty.value]
-    template_string = """
-Erstelle für Schüler des {grade}. Jahrgangs \
+    template_string = """Erstelle für Schüler des {grade}. Jahrgangs \
 im Fach {subject} \
 zum Thema "{topic}" eine spannende Aufgabe{subtasks} vom Typ {exercise_type}. \
 Formatiere alle Mathe-Symbole in LateX. \
