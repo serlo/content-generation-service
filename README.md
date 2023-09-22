@@ -29,18 +29,24 @@ cp .env.sample .env
 
 ### Running the service
 
-To run the service, go to the src/ folder and run
+To run the service, run
 ```
-uvicorn main:app --reload --port=8082
+uvicorn 'src.main:app' --reload --port=8082
 ```
 where reload is optional to well reload the app when you change the code.
 
 Or using Docker, simply run: `docker compose up -d`
+
+### Testing
 
 Your first step will likely be a look at
 ```
 http://localhost:8082/docs#/
 ```
 where you can use the "Try it out" button for an endpoint to test it or generate a request URL.
+
+### Debugging
+
+If you would like to see the debug level logs - for example the prompt sent to the LLM -, change the root log level in logging.conf from INFO to DEBUG.
 
 Happy coding!

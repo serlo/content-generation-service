@@ -1,8 +1,14 @@
+import logging
 from enum import Enum
+from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+
+log_config_file = f"{PurePath(__file__).parent}/logging.conf"
+logging.config.fileConfig(log_config_file, disable_existing_loggers=True)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -119,10 +125,10 @@ wovon jedes genau die folgenden Keys hat:"""
         ),
         previous_knowledge=previous_knowledge,
     )
-    print(f"PROMPT: {prompt_to_generate_exercises[0].content} \n")
+    logger.debug('PROMPT: %s', prompt_to_generate_exercises[0].content)
     if CAN_AUTHENTICATE:
         llm_response = chat(prompt_to_generate_exercises)
-        print(f"RESPONSE: {llm_response}")
+        logger.debug('RESPONSE: %s', llm_response)
         try:
             return llm_response.content
         except IndexError:
