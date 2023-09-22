@@ -1,3 +1,4 @@
+import os
 import logging.config
 from enum import Enum
 from pathlib import PurePath
@@ -5,6 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+from fastapi.middleware.cors import CORSMiddleware
 
 log_config_file = f"{PurePath(__file__).parent}/logging.conf"
 logging.config.fileConfig(log_config_file, disable_existing_loggers=True)
@@ -66,11 +68,20 @@ der Key correct_options den Index der korrekten Antwort""",
 CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
+
     chat = ChatOpenAI(temperature=0.4)
     CAN_AUTHENTICATE = True
 except ValueError as e:
     logger.error(e)
 
+allowed_host = os.environ.get("ALLOWED_HOST", "http://localhost:3000")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[allowed_host],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/exercises", status_code=200)
 # pylint: disable-next=R0913
