@@ -15,6 +15,7 @@ app = FastAPI()
 def get_health_status():
     return {"status": "ok"}
 
+
 CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
@@ -31,9 +32,9 @@ def generate_exercises(
 ):
     logger.debug("PROMPT: %s", prompt)
     if CAN_AUTHENTICATE:
-        llm_response = chat(prompt)
+        llm_response = chat.predict(prompt)
         logger.debug("RESPONSE: %s", llm_response)
-        return llm_response.content
+        return llm_response
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
     return "cannot use LLM"
