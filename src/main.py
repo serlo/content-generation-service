@@ -1,10 +1,8 @@
-import os
 import logging.config
 from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 
 
@@ -27,15 +25,6 @@ try:
     CAN_AUTHENTICATE = True
 except ValueError as e:
     logger.error(e)
-
-allowed_host = os.environ.get("ALLOWED_HOST", "http://localhost:3000")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[allowed_host],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.get("/exercises", status_code=200, response_class=PlainTextResponse)
 def generate_exercises(
