@@ -17,15 +17,6 @@ The way through api.serlo.org is to check if a user is logged in and has the rol
 - Run `pipenv run format` to format the code.
 - Run `pipenv run type_check` to run the static type checker ([mypy](https://github.com/python/mypy)).
 
-## Development using Docker
-
-After making changes, run following commands.
-
-- Run `docker-compose down` to stop the existing service.
-- Run `docker-compose up --build -d` to rebuild and start the container.
-
-Alternatively, you can just execute the `./rebuildDocker.sh` script.
-
 ## Usage
 
 ### Setup
