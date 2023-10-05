@@ -1,8 +1,13 @@
+import os
 import logging.config
 from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
 from langchain.chat_models import ChatOpenAI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
+
+
 
 log_config_file = f"{PurePath(__file__).parent}/logging.conf"
 logging.config.fileConfig(log_config_file, disable_existing_loggers=True)
@@ -15,7 +20,6 @@ app = FastAPI()
 def get_health_status():
     return {"status": "ok"}
 
-
 CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
@@ -24,8 +28,16 @@ try:
 except ValueError as e:
     logger.error(e)
 
+allowed_host = os.environ.get("ALLOWED_HOST", "http://localhost:3000")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[allowed_host],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/exercises", status_code=200)
+@app.get("/exercises", status_code=200, response_class=PlainTextResponse)
 def generate_exercises(
     prompt: str,
     response: Response,
@@ -35,6 +47,7 @@ def generate_exercises(
         llm_response = chat.predict(prompt)
         logger.debug("RESPONSE: %s", llm_response)
         return llm_response
+
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
     return "cannot use LLM"
