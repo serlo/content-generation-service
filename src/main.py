@@ -6,7 +6,6 @@ from fastapi.responses import PlainTextResponse
 from langchain.chat_models import ChatOpenAI
 
 
-
 log_config_file = f"{PurePath(__file__).parent}/logging.conf"
 logging.config.fileConfig(log_config_file, disable_existing_loggers=True)
 logger = logging.getLogger(__name__)
@@ -18,6 +17,7 @@ app = FastAPI()
 def get_health_status():
     return {"status": "ok"}
 
+
 CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
@@ -25,6 +25,7 @@ try:
     CAN_AUTHENTICATE = True
 except ValueError as e:
     logger.error(e)
+
 
 @app.get("/exercises", status_code=200, response_class=PlainTextResponse)
 def generate_exercises(
