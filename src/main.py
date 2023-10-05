@@ -27,8 +27,8 @@ except ValueError as e:
     logger.error(e)
 
 
-@app.get("/exercises", status_code=200, response_class=PlainTextResponse)
-def generate_exercises(
+@app.get("/execute", status_code=200, response_class=PlainTextResponse)
+def execute(
     prompt: str,
     response: Response,
 ):
