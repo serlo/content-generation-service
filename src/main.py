@@ -2,8 +2,9 @@ import logging.config
 from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
-from langchain.chat_models import ChatOpenAI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
+from langchain.chat_models import ChatOpenAI
 
 
 
