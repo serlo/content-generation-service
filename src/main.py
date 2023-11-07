@@ -21,7 +21,8 @@ def get_health_status():
 CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
-    chat = ChatOpenAI(model_name="gpt-4", temperature=0.4)
+    # See https://help.openai.com/en/articles/8555510-gpt-4-turbo
+    chat = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0.4)
     CAN_AUTHENTICATE = True
 except ValueError as e:
     logger.error(e)
