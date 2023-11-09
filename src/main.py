@@ -2,7 +2,7 @@ import logging.config
 from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, Response
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse
 from langchain.chat_models import ChatOpenAI
 
 
@@ -22,13 +22,17 @@ CAN_AUTHENTICATE: bool = False
 try:
     load_dotenv(find_dotenv())
     # See https://help.openai.com/en/articles/8555510-gpt-4-turbo
-    chat = ChatOpenAI(model_name="gpt-4-1106-preview", temperature=0.4)
+    chat = ChatOpenAI(
+        model_name="gpt-4-1106-preview",
+        temperature=0.4,
+        response_format={"type": "json_object"},
+    )
     CAN_AUTHENTICATE = True
 except ValueError as e:
     logger.error(e)
 
 
-@app.get("/execute", status_code=200, response_class=PlainTextResponse)
+@app.get("/execute", status_code=200, response_class=JSONResponse)
 def execute(
     prompt: str,
     response: Response,
@@ -37,8 +41,8 @@ def execute(
     if CAN_AUTHENTICATE:
         llm_response = chat.predict(prompt)
         logger.debug("RESPONSE: %s", llm_response)
-        return llm_response
+        return JSONResponse(content=llm_response)
 
     # 503: "The server is unavailable to handle this request right now."
     response.status_code = 503
-    return "cannot use LLM"
+    return JSONResponse(content={"message": "cannot use LLM"})
