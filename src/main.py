@@ -1,7 +1,7 @@
 import logging.config
 from pathlib import PurePath
 from dotenv import load_dotenv, find_dotenv
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, HTTPException, status
 from fastapi.responses import JSONResponse
 from langchain.chat_models import ChatOpenAI
 
@@ -38,6 +38,9 @@ def execute(
     response: Response,
 ):
     logger.debug("PROMPT: %s", prompt)
+    if not prompt or prompt.strip() == "":
+       raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing prompt parameter")
+
     if CAN_AUTHENTICATE:
         llm_response = chat.predict(prompt)
         logger.debug("RESPONSE: %s", llm_response)
